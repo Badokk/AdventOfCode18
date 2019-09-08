@@ -1,0 +1,46 @@
+I really don't like the brute force approach to second task here. What if we
+loop infinitely? When do we know that no duplicate can be found?
+
+10 1 -10 = 1
+10 11 1 11 12 2
+
+9 1 -8 = 2
+9 10 2 11 12 4 13 14 6 15 16 8 17 18 10
+
+So, basically, the first partial sum set will be infinitely repeated, each time
+incremented by total of the set. Neat! In this case checking for duplicate's
+existence is cheap and simple, just need to find the remainder of dividing each
+partial sum by the total.
+
+From above examples:
+0 10 1 -10, sum = 1
+Partial sums: 0 10 11
+
+We know there will be a duplicate, because each loop the numbers in our set will
+increase by 1, and one value will eventually be rereached.
+
+0 9 1 -8, sum = 2
+Partial sums: 0 9 10
+
+Ok, there's a pattern. We only really need to consider groups of congruent
+items. In this case, we have two groups, {0, 10} == 0 mod 2; and {9} == 1 mod 2
+This means that duplicates can only be found within the group. It also means
+that the duplicated value is one already existing in the initial partial sum set
+
+This is enough for forging an efficient algorithm:
+1. Create a full vector of partial sums and find total sum.
+1.a. Look for duplicates in initial partial sums.
+2. Split the partial sums into groups congruent modulo total.
+2.b. If there is no group with two or more elements, there can be no duplicate.
+3. Divide every element in group by total, to find how many iterations it would
+take to find a duplicate in the group.
+3.b. Sort the values ascending or descending, dependant on total's sign (or they
+could be pre-sorted in 2.)
+4. The lowest difference between neighboring numbers is the number of iterations
+needed. Each pair of such numbers is a possible result (depending on which pair
+appears earlied in initial partial sum vector)
+# jeez, this seems overly complex, when we could just brute force through it...
+# am I overengineering?
+5. The pair earliest in initial vector (nontrivial, as it may take additional
+iteration to get from one to another, e.g 0 3 2 with total=1) holds the answer.
+
