@@ -13,13 +13,13 @@ existence is cheap and simple, just need to find the remainder of dividing each
 partial sum by the total.
 
 From above examples:
-0 10 1 -10, sum = 1
+10 1 -10, sum = 1
 Partial sums: 0 10 11
 
 We know there will be a duplicate, because each loop the numbers in our set will
 increase by 1, and one value will eventually be rereached.
 
-0 9 1 -8, sum = 2
+9 1 -8, sum = 2
 Partial sums: 0 9 10
 
 Ok, there's a pattern. We only really need to consider groups of congruent
