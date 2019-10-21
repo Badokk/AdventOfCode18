@@ -1,11 +1,12 @@
 # Input: A series of strings
-# Output: x*y, where 
+# Output: x*y, where
 #   x = number of strings with a character that occurs twice
 #   y = number of strings with a character that occurs thrice
 
+
 def analiseWord(word):
     word = sorted(word)
-    
+
     # Now, options are:
     # - iterate over the word with a counter
     # - cut string into pieces
@@ -14,10 +15,13 @@ def analiseWord(word):
     uniqueCharacters = set(word)
     for char in uniqueCharacters:
         count = word.count(char)
-        if count == 2: has_two_of_a_kind = True
-        if count == 3: has_three_of_a_kind = True
-    
+        if count == 2:
+            has_two_of_a_kind = True
+        if count == 3:
+            has_three_of_a_kind = True
+
     return has_two_of_a_kind, has_three_of_a_kind
+
 
 def countWordsWithDoubleAndTripleChars(words):
     doubles = 0
@@ -29,16 +33,17 @@ def countWordsWithDoubleAndTripleChars(words):
 
     return doubles, triples
 
+
 def countChecksum(words):
     doubles, triples = countWordsWithDoubleAndTripleChars(words)
     return doubles*triples
 
 
-### Part two
+# Part two
 # Input: A series of strings
 # Output: Two strings that differ by a single character (in a single position!)
 # Hmm, that's an interesting one. Brute force is O(n^2*m)
-# 
+#
 # Ok, I think I get it. If a distance between two strings == 1,
 # then their distance against any other string can only differ by 1
 # So. I'll take the first word and compate it against all others
@@ -58,26 +63,43 @@ def countChecksum(words):
 # should be about 60-70% of the starting set. The complexity is still
 # O(n^2*m), but closer to... E(k->inf) nm*(0.7)^k so substantially smaller
 
-def findClosestWords(words):
+def findLargestCommonSubstring(words):
+    result = findWordsDifferingByOne(words)
+    if result != False:
+        return ''.join([a for a, b in zip(result[0], result[1]) if a == b])
+
+    return False
+
+
+def findWordsDifferingByOne(words):
     distance_map = createDistanceMap(words)
 
     # handle special case here - only pivot is in map
-    if len(distance_map) == 1 return False
+    if len(distance_map) == 1:
+        return False
 
     if 1 in distance_map:
         return distance_map[0][0], distance_map[1][0]
     for key in distance_map:
-        if not key+1 in distance_map
+        if not key+1 in distance_map:
+            continue
+        subresult = findWordsDifferingByOne(
+            distance_map[key] + distance_map[key+1])
+        if subresult == False:
+            continue
+        return subresult
+
+    return False
+
 
 def createDistanceMap(words):
     distance_map = dict()
-    distance_map[0] = [pivot]
     pivot = words[0]
+    distance_map[0] = [pivot]
 
     for word in words[1:]:
-        count = sum(1 for a, b in zip(pivot, word) if a != b)
-        if not count in distance_map:
-            distance_map[count] = list()
-        distance_map[count].append(word)
+        differences = sum(1 for a, b in zip(pivot, word) if a != b)
+        if not differences in distance_map:
+            distance_map[differences] = list()
+        distance_map[differences].append(word)
     return distance_map
-
