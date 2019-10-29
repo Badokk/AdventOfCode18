@@ -4,6 +4,7 @@ import math
 import numpy as np
 import re
 import operator
+import statistics
 
 
 BLANK_CELL = -1
@@ -105,6 +106,40 @@ def getLargestArea(array):
     return max(scores.values())
 
 
+def solve2(coords, radius):
+    parsed = parseInput(coords)
+    norm = normalize(parsed)
+    arrSize = getArrSize(norm)
+    array = [[BLANK_CELL for i in range(arrSize['y']+1)]
+             for j in range(arrSize['x']+1)]
+
+    medianPoint = findMedianPoint(norm)
+    pointsInRadius = set()
+    pointsInRadius.add(medianPoint)
+
+    candidates = getNeighborCoords(medianPoint[0], medianPoint[1], array)
+    while len(candidates) > 0:
+        newCandidates = set()
+        for point in candidates:
+            if withinRadius(point, radius, norm):
+                neighbors = [tuple(neighbor) for neighbor in getNeighborCoords(
+                    point[0], point[1], array) if not tuple(neighbor) in pointsInRadius]
+                for neighbor in neighbors:
+                    newCandidates.add(neighbor)
+                pointsInRadius.add(tuple(point))
+        candidates = newCandidates
+    return len(pointsInRadius)
+
+
+def findMedianPoint(coords):
+    xs, ys = zip(*coords)
+    return int(statistics.median(sorted(xs))), int(statistics.median(sorted(ys))),
+
+
+def withinRadius(point, radius, points):
+    return sum(int(math.fabs(point[0]-x)) + int(math.fabs(point[1]-y)) for x, y in points) < radius
+
+
 def main():
     runMain = True
     if runMain:
@@ -113,31 +148,32 @@ def main():
             start = time.time()
             print("Part 1 solution (largest area): " + str(solve(contents)) +
                   " found in " + str(time.time() - start))
-            # start = time.time()
-            # bestPolymerLen = solve2(contents)
-            # print("Part 2 solution: " + str(bestPolymerLen) +
-            #       " found in " + str(time.time() - start))
+            start = time.time()
+            print("Part 2 solution (area within 1000 units to each point): " + str(solve2(contents, 10000)) +
+                  " found in " + str(time.time() - start))
     else:
-        parsed = parseInput(["1, 1",
-                             "1, 6",
-                             "8, 3",
-                             "3, 4",
-                             "5, 5",
-                             "8, 9"])
+        input = ["1, 1",
+                 "1, 6",
+                 "8, 3",
+                 "3, 4",
+                 "5, 5",
+                 "8, 9"]
+        # parsed = parseInput(input)
 
-        print("Parsed: ", parsed)
-        norm = normalize(parsed)
-        print("Normalized: ", norm)
-        arrSize = getArrSize(norm)
-        print("Arr size: ", arrSize)
+        # print("Parsed: ", parsed)
+        # norm = normalize(parsed)
+        # print("Normalized: ", norm)
+        # arrSize = getArrSize(norm)
+        # print("Arr size: ", arrSize)
 
-        arr = [[BLANK_CELL for i in range(arrSize['y']+1)]
-               for j in range(arrSize['x']+1)]
-        printArray(arr)
+        # arr = [[BLANK_CELL for i in range(arrSize['y']+1)]
+        #        for j in range(arrSize['x']+1)]
+        # printArray(arr)
 
-        arr = fillArray(arr, norm)
-        result = getLargestArea(arr)
-        print(result)
+        # arr = fillArray(arr, norm)
+        # result = getLargestArea(arr)
+        # print(result)
+        solve2(input, 32)
 
 
 if __name__ == '__main__':
